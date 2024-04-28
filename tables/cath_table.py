@@ -15,6 +15,7 @@ class CathTable(DbTable):
     
     
     def find_by_position(self, num):
+        
         sql = "SELECT * FROM " + self.table_name()
         sql += " ORDER BY "
         sql += ", ".join(self.primary_key())

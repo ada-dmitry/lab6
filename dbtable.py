@@ -24,7 +24,6 @@ class DbTable:
         res = sorted(self.columns().keys(), key = lambda x: x)
         if 'id' in res:
             res.remove('id')
-            
         return res
 
     def table_constraints(self):
@@ -39,6 +38,14 @@ class DbTable:
         cur.execute(sql)
         self.dbconn.conn.commit()
         return
+    
+    def delete(self, val):
+        sql = "DELETE FROM " + self.table_name()
+        sql += " WHERE " + "".join(self.column_names_without_id())
+        sql += "=" + "'" + "".join(val) + "';"
+        cur = self.dbconn.conn.cursor()
+        cur.execute(sql)
+        self.dbconn.conn.commit()
 
     def drop(self):
         sql = "DROP TABLE IF EXISTS " + self.table_name()
