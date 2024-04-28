@@ -138,11 +138,11 @@ class Main:
         if self.cath_id == -1:
             while True:
                 name = input("Укажите название категории для вывода блюд (0 - отмена):")
-                while len(name.strip()) == 0:
+                while len(name.strip()) == '':
                     name = input("Пустая строка. Повторите ввод! Укажите название категории для вывода блюд (0 - отмена):")
                 if name == "0":
                     return "1"
-                cath = CathTable().find_by_position(int(name))
+                cath = CathTable().find_by_name(name)
                 if not cath:
                     print("Введено неверное название!")
                 else:
