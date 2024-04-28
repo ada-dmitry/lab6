@@ -117,7 +117,7 @@ class Main:
             else:
                 return next_step
 
-    def show_add_cath(self):
+    def add_cath(self):
         data = []
         data.append(input("Введите название (1 - отмена): ").strip())
         if data[0] == "1":
@@ -131,7 +131,7 @@ class Main:
                 data[0] = input("Название не может быть пустым! Введите название заново (1 - отмена):").strip()
                 if data[0] == "1":
                     return
-        CathTable().insert_one(data)
+            CathTable().insert_one(data)
         return
     
     def show_dish_in_cath(self):
@@ -178,7 +178,7 @@ class Main:
             elif current_menu == "2":
                 self.show_main_menu()
             elif current_menu == "3":
-                self.show_add_cath()
+                self.add_cath()
                 current_menu = "1"
         print("До свидания!")    
         return

@@ -64,8 +64,11 @@ class DbTable:
         sql += ", ".join(self.column_names_without_id()) + ") VALUES("
         sql += ", ".join(vals) + ")"
         cur = self.dbconn.conn.cursor()
-        cur.execute(sql)
-        self.dbconn.conn.commit()
+        try:
+            cur.execute(sql)
+            self.dbconn.conn.commit()
+        except psycopg2.errors.UniqueViolation:
+            self.dbconn.conn.rollback()
         return
 
     def first(self):
