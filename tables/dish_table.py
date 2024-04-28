@@ -8,7 +8,7 @@ class DishTable(DbTable):
 
     def columns(self):
         return {"id": ["serial", "PRIMARY KEY"],
-                "cath_id": ["integer", "REFERENCES cath(id)", "NOT NULL"],
+                "cath_id": ["integer", "REFERENCES cath(id) ON DELETE CASCADE", "NOT NULL"],
                 "dish_name": ["varchar(32)", "NOT NULL"],
                 "cook_time": ["interval"], 
                 "manual": ["text"]}
