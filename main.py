@@ -1,8 +1,10 @@
+import add_func
 import sys
 sys.path.append('tables')
 
 from project_config import *
 from dbconnection import *
+
 # from tables.people_table import *
 # from tables.phones_table import *
 from tables.dish_table import *
@@ -87,12 +89,14 @@ class Main:
     def show_cath(self):
         self.cath_id = -1
         menu = """Просмотр списка категорий!
-№\tНазвание\n------------------------"""
+№\tНазвание\n-------------------------------------------------------------------------------------"""
         print(menu)
         lst = CathTable().all()
+        j = 1
         for i in lst:
-            print(str(i[1]) + "\t" + str(i[0]))
-        menu = """------------------------\nДальнейшие операции: 
+            print(str(j) + "\t" + str(i[0]))
+            j += 1
+        menu = """-------------------------------------------------------------------------------------\nДальнейшие операции: 
     0 - возврат в главное меню;
     3 - добавление новой категории;
     4 - удаление категории;
@@ -102,12 +106,35 @@ class Main:
         return
     
     def after_show_cath(self, next_step):
+        """Выбор действий после вывода категорий
+        """        
         while True:
             if next_step == "4":
-                CathTable().delete(input('Введите название удаляемой категории: '))
+                CathTable().delete(input('Введите название удаляемой категории(1 - для отмены): '))
                 return "1"
-            elif next_step == "6" or next_step == "7":
-                print("Пока не реализовано!")
+            
+            elif next_step == "6": #Добавление блюда в категорию
+                DishTable().insert_dishone(self.cath_id)
+                next_step = "5"
+                
+            elif next_step == "7":#Удаление блюда из категории
+                del_name = input('Введите название удаляемого блюда (1 - для отмены): ')
+                while (del_name.strip() == '')or(len(del_name.strip()) > 32)or(add_func.is_cyr_or_dig(del_name.strip())==0):
+                    if(del_name.strip() == ''):
+                        del_name = input("Пустая строка. Повторите ввод! Укажите название удаляемого блюда (0 - отмена): ")
+                        if del_name == "0":
+                            return "1"
+                    elif(len(del_name.strip()) > 32):
+                        del_name = input("Слишком длинная строка. Повторите ввод!\
+                            Укажите название удаляемого блюда (0 - отмена): ")
+                        if del_name == "0":
+                            return "1"
+                    elif(add_func.is_cyr_or_dig(del_name.strip())==0):
+                        del_name = input("Название должно состоять только из символов кириллицы. Повторите ввод!\
+                            Укажите название удаляемого блюда (0 - отмена): ")
+                        if del_name == "0":
+                            return "1"
+                DishTable().delete(del_name)
                 next_step = "5"
             elif next_step == "5":
                 next_step = self.show_dish_in_cath()
@@ -118,43 +145,69 @@ class Main:
                 return next_step
 
     def add_cath(self):
+        """
+        Добавление новой категории в таблицу
+        """        
         data = []
         data.append(input("Введите название (1 - отмена): ").strip())
         if data[0] == "1":
             return
-        while (len(data[0].strip()) == 0)or(len(data[0].strip()) > 32):
+        while((len(data[0].strip()) == 0)or(len(data[0].strip()) > 32)or(add_func.is_cyr_or_dig(data[0].strip())==0)):
             if (len(data[0].strip()) > 32):
                 data[0] = input("Название слишком длинное! Введите название заново (1 - отмена):").strip()
+                if data[0] == "1":
+                    return
+            elif add_func.is_cyr_or_dig(data[0].strip())==0:
+                data[0] = input("Название должно состоять только из символов кириллицы!\
+                    Введите название заново (1 - отмена):").strip()
                 if data[0] == "1":
                     return
             else:
                 data[0] = input("Название не может быть пустым! Введите название заново (1 - отмена):").strip()
                 if data[0] == "1":
                     return
-            CathTable().insert_one(data)
+        CathTable().insert_one(data)
         return
     
     def show_dish_in_cath(self):
+        """Вывод всех блюд в выбранной пользователем категории
+        """       
         if self.cath_id == -1:
             while True:
                 name = input("Укажите название категории для вывода блюд (0 - отмена):")
-                while len(name.strip()) == '':
-                    name = input("Пустая строка. Повторите ввод! Укажите название категории для вывода блюд (0 - отмена):")
-                if name == "0":
-                    return "1"
-                cath = CathTable().find_by_name(name)
-                if not cath:
+                while (name.strip() == '')or(len(name.strip()) > 32)or(add_func.is_cyr_or_dig(name.strip())==0):
+                    if(name.strip() == ''):
+                        name = input("Пустая строка. Повторите ввод! Укажите название категории для вывода блюд (0 - отмена):")
+                        if name == "0":
+                            return "1"
+                    elif(len(name.strip()) > 32):
+                        name = input("Сликшом длинная строка. Повторите ввод!\
+                            Укажите название категории для вывода блюд (0 - отмена):")
+                        if name == "0":
+                            return "1"
+                    elif(add_func.is_cyr_or_dig(name.strip())==0):
+                        name = input("Название должно состоять только из символов кириллицы. Повторите ввод!\
+                            Укажите название категории для вывода блюд (0 - отмена):")
+                        if name == "0":
+                            return "1"
+                flag, cath = CathTable().find_by_name(name)
+                print(flag)
+                if flag == 0:
                     print("Введено неверное название!")
                 else:
-                    self.cath_id = int(cath[1])
-                    self.cath_obj = cath
+                    self.cath_id = cath
+                    # self.cath_obj = cath
                     break
-        print("Выбрана категория: " + self.cath_obj[1])
-        print("Блюда:")
-        lst = DishTable().all_by_cath_id(self.cath_id)
-        for i in lst:
-            print(i[1])
-        menu = """Дальнейшие операции:
+            print("Выбрана категория: " + name)
+            print("Блюда:")
+            print("№\tНазвание\tВремя приготовления\tКраткая инструкция\
+                \n-------------------------------------------------------------------------------------")
+            lst = DishTable().all_by_cath_id(cath)
+            j = 1
+            for i in lst:
+                print(str(j) + "\t" + i[2] + "\t\t" + str(i[1]) + "\t\t\t" + str(i[4]))
+                j += 1
+        menu = """-------------------------------------------------------------------------------------\nДальнейшие операции:
     0 - возврат в главное меню;
     1 - возврат в просмотр категорий;
     6 - добавление нового блюда;
@@ -164,22 +217,30 @@ class Main:
         return self.read_next_step()
 
     def main_cycle(self):
+        """Основной цикл программы, регулирующий порядок действий
+        """        
         current_menu = "0"
         next_step = None
+        
         while(current_menu != "9"):
+            
             if current_menu == "0":
                 self.show_main_menu()
                 next_step = self.read_next_step()
                 current_menu = self.after_main_menu(next_step)
+                
             elif current_menu == "1":
                 self.show_cath()
                 next_step = self.read_next_step()
                 current_menu = self.after_show_cath(next_step)
+                
             elif current_menu == "2":
                 self.show_main_menu()
+                
             elif current_menu == "3":
                 self.add_cath()
                 current_menu = "1"
+                
         print("До свидания!")    
         return
 

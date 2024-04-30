@@ -56,12 +56,8 @@ class DbTable:
         sql += ", ".join(self.column_names_without_id()) + ") VALUES("
         sql += ", ".join(vals) + ")"
         cur = self.dbconn.conn.cursor()
-        # cur.execute(sql)
-        try:
-            cur.execute(sql)
-            self.dbconn.conn.commit()
-        except psycopg2.errors.UniqueViolation:
-            self.dbconn.conn.rollback()
+        cur.execute(sql)
+        self.dbconn.conn.commit()
         return
 
     def first(self):
@@ -88,26 +84,3 @@ class DbTable:
         cur.execute(sql)
         return cur.fetchall()        
         
-    def select_one(self, **kwargs):
-        conditions = []
-        values = []
-        
-        sorted_kwargs = sorted(kwargs.items(), key=lambda x: x[0])
-        
-        for key, value in sorted_kwargs():
-            conditions.append(f"{key}=%s")
-            values.append(value)
-
-        sql = f"SELECT * FROM {self.table_name()} WHERE " + " AND ".join(conditions)
-        cur = self.dbconn.conn.cursor()
-        cur.execute(sql, tuple(values))
-        result = cur.fetchone()
-        cur.close()
-
-        if result:
-            return True
-        else:
-            return False
-        
-
-
