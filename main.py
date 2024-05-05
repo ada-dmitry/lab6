@@ -19,12 +19,8 @@ class Main:
         return
 
     def db_init(self):
-        # pt = PeopleTable()
-        # pht = PhonesTable()
         cth = CathTable()
         d = DishTable()
-        # pt.create()
-        # pht.create()
         cth.create()
         d.create()
         return
@@ -221,7 +217,5 @@ class Main:
             DbTable.dbconn.test()
 
 m = Main()
-# Откоментируйте эту строку и закоментируйте следующую для теста
-# соединения с БД
 # m.test()
 m.main_cycle() 
