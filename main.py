@@ -1,12 +1,11 @@
 import add_func
 import sys
+import texts
 sys.path.append('tables')
 
 from project_config import *
 from dbconnection import *
 
-# from tables.people_table import *
-# from tables.phones_table import *
 from tables.dish_table import *
 from tables.cath_table import *
 
@@ -31,14 +30,6 @@ class Main:
         return
 
     def db_insert_somethings(self):
-        # pt = PeopleTable()
-        # pht = PhonesTable()
-        # pt.insert_one(["Test", "Test", "Test"])
-        # pt.insert_one(["Test2", "Test2", "Test2"])
-        # pt.insert_one(["Test3", "Test3", "Test3"])
-        # pht.insert_one([1, "123"])
-        # pht.insert_one([2, "123"])
-        # pht.insert_one([3, "123"])
         cth = CathTable()
         dsh = DishTable()
         
@@ -52,21 +43,14 @@ class Main:
         dsh.insert_one([3, "40 minutes", "Паста", "Почувствуй себя итальянцем"])
         
     def db_drop(self):
-        # pht = PhonesTable()
-        # pt = PeopleTable()
         cth = CathTable()
         d = DishTable()
-        # pht.drop()
-        # pt.drop()
         d.drop()
         cth.drop()
         return
 
     def show_main_menu(self):
-        menu = """Привутствуем в меню, выберите действие:
-        1 - просмотр категорий;
-        2 - сброс и инициализация БД;
-        9 - выход;"""
+        menu = texts.show_main_menu_txt
         print(menu)
         return
 
@@ -88,20 +72,14 @@ class Main:
             
     def show_cath(self):
         self.cath_id = -1
-        menu = """Просмотр списка категорий!
-№\tНазвание\n-------------------------------------------------------------------------------------"""
+        menu = texts.show_cath_1txt
         print(menu)
         lst = CathTable().all()
         j = 1
         for i in lst:
             print(str(j) + "\t" + str(i[0]))
             j += 1
-        menu = """-------------------------------------------------------------------------------------\nДальнейшие операции: 
-    0 - возврат в главное меню;
-    3 - добавление новой категории;
-    4 - удаление категории;
-    5 - просмотр блюд в категории;
-    9 - выход."""
+        menu = texts.show_cath_2txt
         print(menu)
         return
     
@@ -207,12 +185,7 @@ class Main:
             for i in lst:
                 print(str(j) + "\t" + i[2] + "\t\t" + str(i[1]) + "\t\t\t" + str(i[4]))
                 j += 1
-        menu = """-------------------------------------------------------------------------------------\nДальнейшие операции:
-    0 - возврат в главное меню;
-    1 - возврат в просмотр категорий;
-    6 - добавление нового блюда;
-    7 - удаление блюда;
-    9 - выход."""
+        menu = texts.show_dish_in_cath_txt
         print(menu)
         return self.read_next_step()
 
