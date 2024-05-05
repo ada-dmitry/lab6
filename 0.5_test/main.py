@@ -15,10 +15,12 @@ TODO:
 3) Устранить SQLi с помощью санации атрибутов - Не выполнено
 
 FIXME:
+1) Не работает санация для insert_one!
 '''
 
 
 class Main:
+    
     
     config = ProjectConfig()
     connection = DbConnection(config)

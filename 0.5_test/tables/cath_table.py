@@ -14,18 +14,21 @@ class CathTable(DbTable):
         return ['CONSTRAINT "Name" UNIQUE (cath_name)']
     
     def delete(self, val):
-        sql = "DELETE FROM " + self.table_name()
-        sql += " WHERE cath_name"
-        sql += "=" + "'" + "".join(val) + "';"
+        # sql = "DELETE FROM " + self.table_name()
+        # sql += " WHERE cath_name"
+        # sql += "=" + "'" + "".join(val) + "';"
+        param_sql = "DELETE FROM cath WHERE cath_name = %s;"
         cur = self.dbconn.conn.cursor()
-        cur.execute(sql)
+        value = "".join(val)
+        cur.execute(param_sql, (value,))
         self.dbconn.conn.commit()
     
     def find_by_name(self, name):
         cur = self.dbconn.conn.cursor()
-        sql_sel = "SELECT id FROM " + self.table_name()
-        sql_sel += " WHERE cath_name = " + "'" + name + "'" + ";"
-        cur.execute(sql_sel)            
+        param_query = "SELECT id FROM cath WHERE cath_name = %s;"
+        # sql_sel = "SELECT id FROM " + self.table_name()
+        # sql_sel += " WHERE cath_name = " + "'" + name + "'" + ";"
+        cur.execute(param_query, (name,))           
         ret = cur.fetchone()
         return  list(ret)[0] 
         # sql = "SELECT * FROM " + self.table_name()

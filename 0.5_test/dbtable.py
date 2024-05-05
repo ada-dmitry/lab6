@@ -2,6 +2,11 @@
 
 from dbconnection import *
 
+'''
+FIXME:
+1) Не работает санация для insert_one!
+'''
+
 class DbTable:
     dbconn = None
 
@@ -47,18 +52,21 @@ class DbTable:
         return
 
     def insert_one(self, vals):
-        for i in range(0, len(vals)):
+        for i in range(len(vals)):
             if type(vals[i]) == str:
                 vals[i] = "'" + vals[i] + "'"
             else:
                 vals[i] = str(vals[i])
-        sql = "INSERT INTO " + self.table_name() + "("
-        sql += ", ".join(self.column_names_without_id()) + ") VALUES("
-        sql += ", ".join(vals) + ")"
+        # sql = "INSERT INTO " + self.table_name() + "("
+        # sql += ", ".join(self.column_names_without_id()) + ") VALUES("
+        # sql += ", ".join(vals) + ")"
+        query = "INSERT INTO " + self.table_name() + "(" + ", ".join(self.column_names_without_id()) + ") VALUES(%s)"
+        print(query)
         cur = self.dbconn.conn.cursor()
+        values = ", ".join(vals)
         # cur.execute(sql)
         try:
-            cur.execute(sql)
+            cur.execute(query, (values,))
             self.dbconn.conn.commit()
         except psycopg2.errors.UniqueViolation:
             self.dbconn.conn.rollback()
