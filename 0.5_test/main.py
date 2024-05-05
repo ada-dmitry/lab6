@@ -9,6 +9,17 @@ from dbconnection import *
 from tables.dish_table import *
 from tables.cath_table import *
 
+'''
+TODO:
+1) Реализовать ввод порядкового номера - Не выполнено
+2) Удалить проверки на "русскоязычный ввод" - Не выполнено
+3) Устранить SQLi с помощью санации атрибутов - Не выполнено
+
+FIXME:
+1) Мяу - Не выполнено
+'''
+
+
 class Main:
     
     config = ProjectConfig()
