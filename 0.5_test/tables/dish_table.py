@@ -1,7 +1,6 @@
 # Таблица с блюдами и действия с ними
 
 from dbtable import *
-import add_func
 
 class DishTable(DbTable):
     def table_name(self):
@@ -61,7 +60,7 @@ class DishTable(DbTable):
         ins_name = input('Введите название добавляемого блюда (1 - для отмены): ')
         
         while (ins_name.strip() == '')or(len(ins_name.strip()) > 32)\
-            or(add_func.is_cyr_or_dig(ins_name.strip())==0)or(DishTable().check_by_name(ins_name)):
+            or(DishTable().check_by_name(ins_name)):
                 
             if(ins_name.strip() == ''):
                 ins_name = input("Пустая строка. Повторите ввод! Укажите название удаляемого блюда (0 - отмена): ")
