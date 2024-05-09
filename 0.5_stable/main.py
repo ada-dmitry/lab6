@@ -12,10 +12,10 @@ from tables.cath_table import *
 TODO:
 1) Реализовать ввод порядкового номера - done
 2) Удалить проверки на "русскоязычный ввод" - done
-3) Устранить SQLi с помощью санации атрибутов - Не выполнено
+3) Устранить SQLi с помощью санации атрибутов - done
+4) UPDATE для отдельный таблиц/общий?
 
 FIXME:
-1) Не работает санация для insert_one!
 '''
 
 
@@ -40,14 +40,8 @@ class Main:
         cth = CathTable()
         dsh = DishTable()
         
-        cth.insert_one(["Завтрак"])
-        cth.insert_one(["Обэд"])
-        cth.insert_one(["Ужин"])
-        
-        dsh.insert_one([1, "10 minutes", "Яичница", "Взбить яйца, нарезать помидоры, обжарить их вместе."])
-        dsh.insert_one([1, "20 minutes", "Блины", "Замесить тесто, да пожарить. ©️ Никита Сергеич"])
-        dsh.insert_one([2, "2 hours", "Хлэб", "Почти, как блины, но не совсем."])
-        dsh.insert_one([3, "40 minutes", "Паста", "Почувствуй себя итальянцем"])
+        cth.example_insert()
+        dsh.example_insert()
         
     def db_drop(self):
         cth = CathTable()

@@ -72,13 +72,6 @@ class DishTable(DbTable):
                     Укажите название удаляемого блюда (0 - отмена): ")
                 if ins_name == "0":
                     return "1"
-                
-            elif(add_func.is_cyr_or_dig(ins_name.strip())==0):
-                ins_name = input("Название должно состоять только из символов кириллицы. Повторите ввод!\
-                    Укажите название удаляемого блюда (0 - отмена): ")
-                if ins_name == "0":
-                    return "1"
-                
             else:
                 print('Такое блюдо уже существует')
                 ins_name = input("Повторите ввод! Укажите название блюда (0 - отмена): ")
@@ -98,4 +91,9 @@ class DishTable(DbTable):
         DishTable().insert_one(insert)
         
         
-        
+    def example_insert(self):       
+        self.insert_one([1, "10 minutes", "Яичница", "Взбить яйца, нарезать помидоры, обжарить их вместе."])
+        self.insert_one([1, "20 minutes", "Блины", "Замесить тесто, да пожарить. ©️ Никита Сергеич"])
+        self.insert_one([2, "2 hours", "Хлэб", "Почти, как блины, но не совсем."])
+        self.insert_one([3, "40 minutes", "Паста", "Почувствуй себя итальянцем"])
+        return

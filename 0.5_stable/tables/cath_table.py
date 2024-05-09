@@ -38,3 +38,8 @@ class CathTable(DbTable):
         # cur.execute(sql, {"offset": num - 1})
         # print(cur)    
     
+    def example_insert(self):
+        self.insert_one(["Завтрак"])
+        self.insert_one(["Обед"])
+        self.insert_one(["Ужин"])
+        return

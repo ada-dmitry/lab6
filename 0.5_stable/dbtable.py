@@ -4,7 +4,6 @@ from dbconnection import *
 
 '''
 FIXME:
-1) Не работает санация для insert_one!
 '''
 
 class DbTable:
@@ -55,18 +54,15 @@ class DbTable:
         for i in range(len(vals)):
             if type(vals[i]) == str:
                 vals[i] = "'" + vals[i] + "'"
+                pass
             else:
                 vals[i] = str(vals[i])
-        # sql = "INSERT INTO " + self.table_name() + "("
-        # sql += ", ".join(self.column_names_without_id()) + ") VALUES("
-        # sql += ", ".join(vals) + ")"
-        query = "INSERT INTO " + self.table_name() + "(" + ", ".join(self.column_names_without_id()) + ") VALUES(%s)"
-        print(query)
-        cur = self.dbconn.conn.cursor()
         values = ", ".join(vals)
+        query = f"""INSERT INTO {self.table_name()}({", ".join(self.column_names_without_id())}) VALUES({values})"""
+        cur = self.dbconn.conn.cursor()
         # cur.execute(sql)
         try:
-            cur.execute(query, (values,))
+            cur.execute(query)
             self.dbconn.conn.commit()
         except psycopg2.errors.UniqueViolation:
             self.dbconn.conn.rollback()
