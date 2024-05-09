@@ -13,7 +13,7 @@ TODO:
 1) Реализовать ввод порядкового номера - done
 2) Удалить проверки на "русскоязычный ввод" - done
 3) Устранить SQLi с помощью санации атрибутов - done
-4) UPDATE для отдельный таблиц/общий?
+4) UPDATE для отдельный таблиц/общий? - indev
 
 FIXME:
 '''
@@ -139,6 +139,12 @@ class Main:
         CathTable().insert_one(data)
         return
     
+    def update_cath(self):
+        """Функция для обновления категории
+        """        
+        
+        
+        
     def show_dish_in_cath(self):
         """Вывод всех блюд в выбранной пользователем категории
         """       
@@ -191,6 +197,10 @@ class Main:
                 
             elif current_menu == "3":
                 self.add_cath()
+                current_menu = "1"
+                
+            elif current_menu == "8":
+                self.update_cath()
                 current_menu = "1"
                 
         print("До свидания!")    
