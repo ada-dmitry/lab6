@@ -1,5 +1,6 @@
 import sys
 import texts
+# import time
 sys.path.append('tables')
 
 from project_config import *
@@ -13,7 +14,8 @@ TODO:
 1) Реализовать ввод порядкового номера - done
 2) Удалить проверки на "русскоязычный ввод" - done
 3) Устранить SQLi с помощью санации атрибутов - done
-4) UPDATE для отдельный таблиц/общий? - indev
+4) UPDATE для отдельных таблиц - indev
+5) Красивый вывод - done
 
 FIXME:
 '''
@@ -111,8 +113,18 @@ class Main:
                 else:
                     DishTable().delete(self.dish_arr[x-1][0])
                 next_step = "5"
+                
             elif next_step == "5":
                 next_step = self.show_dish_in_cath()
+                
+            elif next_step == "8":             
+                x = int(input(texts.text_choice_update))
+                if(x==1):
+                    self.cath_update()
+                elif(x==2):
+                    self.dish_update() 
+                return "1"
+                
             elif next_step != "0" and next_step != "9" and next_step != "3":
                 print("Выбрано неверное число! Повторите ввод!")
                 return "1"
@@ -160,16 +172,28 @@ class Main:
                 
                 print("Выбрана категория: " + self.cath_obj)
                 print("Блюда:")
-                print("№\tНазвание\tВремя приготовления\tКраткая инструкция\
-                    \n-------------------------------------------------------------------------------------")
+
                 lst = DishTable().all_by_cath_id(self.cath_id)
-                
+                self.max_len_name = 0
+                self.max_index = len(lst)
                 for i in lst:
                     self.dish_arr.append([i[2], str(i[1]), str(i[4])])
-                    
+                    self.max_len_name = max(self.max_len_name, len(i[2]))
+                print("№" + " "*(self.max_index + 1)+ "Название" + " "*(self.max_len_name - 4)\
+                    +"Время приготовления     Краткая инструкция\
+                        \n-------------------------------------------------------------------------------------------")
+                # print('Катя хорошая и Дима тоже')
                 for i in range(len(self.dish_arr)):
-                    print(str(i+1) + "\t" + self.dish_arr[i][0] + "\t\t" + self.dish_arr[i][1] + "\t\t\t" + self.dish_arr[i][2])
-
+                    txt = str(i+1) + " "*(2+self.max_index-len(str(i)))
+                    txt += self.dish_arr[i][0] + " "*(4+self.max_len_name - len(self.dish_arr[i][0]))
+                    txt += self.dish_arr[i][1] + " "*(5+19-len(self.dish_arr[i][1]))
+                    txt += self.dish_arr[i][2]
+                    # txt += self.dish_arr[i][0] + 
+                    # print(f"""{str(i+1):<8}{self.dish_arr[i][0]:<18}\
+                    #     {self.dish_arr[i][1]:<15}{self.dish_arr[i][2]}""")
+#                     print(f"""{str(i+1)}{" "*(self.max_index+2)}\
+# {self.dish_arr[i][0]}{" "*(self.max_len_name+2)}{self.dish_arr[i][1]}{" "*19}{self.dish_arr[i][2]}""")
+                    print(txt)
                 menu = texts.show_dish_in_cath_txt
                 print(menu)
                 return self.read_next_step()
@@ -197,10 +221,6 @@ class Main:
                 
             elif current_menu == "3":
                 self.add_cath()
-                current_menu = "1"
-                
-            elif current_menu == "8":
-                self.update_cath()
                 current_menu = "1"
                 
         print("До свидания!")    

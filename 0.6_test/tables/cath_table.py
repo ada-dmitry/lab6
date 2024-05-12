@@ -14,9 +14,6 @@ class CathTable(DbTable):
         return ['CONSTRAINT "Name" UNIQUE (cath_name)']
     
     def delete(self, val):
-        # sql = "DELETE FROM " + self.table_name()
-        # sql += " WHERE cath_name"
-        # sql += "=" + "'" + "".join(val) + "';"
         param_sql = "DELETE FROM cath WHERE cath_name = %s;"
         cur = self.dbconn.conn.cursor()
         value = "".join(val)
@@ -42,4 +39,21 @@ class CathTable(DbTable):
         self.insert_one(["Завтрак"])
         self.insert_one(["Обед"])
         self.insert_one(["Ужин"])
+        self.insert_one(["Перекус"])
+        self.insert_one(["Десерт"])
+        self.insert_one(["Напиток"])
+        self.insert_one(["Закуска"])
+        self.insert_one(["Салат"])
+        self.insert_one(["Гарнир"])
+        self.insert_one(["Выпечка"])
+        self.insert_one(["Супы"])
+        self.insert_one(["Соусы"])
+        self.insert_one(["Паста"])
+        self.insert_one(["Мясные блюда"])
+        self.insert_one(["Рыбные блюда"])
+        self.insert_one(["Веганские блюда"])
+        self.insert_one(["Блюда из птицы"])
+        self.insert_one(["Морепродукты"])
+        self.insert_one(["Национальная кухня"])
+        self.insert_one(["Быстрые блюда"])
         return

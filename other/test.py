@@ -9,3 +9,7 @@
 # from tables.cath_table import *
 
 # cath = CathTable().find_by_name('За') 
+st = '2'
+print('!\t!')
+for i in range(30):
+    print('_', end="")
