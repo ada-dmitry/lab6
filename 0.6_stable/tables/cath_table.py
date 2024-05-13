@@ -21,7 +21,7 @@ class CathTable(DbTable):
         self.dbconn.conn.commit()
     
     def find_by_name(self, name):
-        
+        cur = self.dbconn.conn.cursor()
         param_query = "SELECT id FROM cath WHERE cath_name = %s;"
         # sql_sel = "SELECT id FROM " + self.table_name()
         # sql_sel += " WHERE cath_name = " + "'" + name + "'" + ";"
@@ -32,7 +32,7 @@ class CathTable(DbTable):
     def cath_update(self, old):
         """Функция для обновления категории
         """      
-        print(old)
+        print(f'''Выбрана категория для изменения: {old}''')
         cur = self.dbconn.conn.cursor()
 
         data = input("Введите название (1 - отмена): ").strip()
@@ -50,7 +50,6 @@ class CathTable(DbTable):
             else:
                 data = input("Такое название уже существует. Введите новое (1 - отмена):").strip()
 
-        print(data)
         param_sql = f"UPDATE cath SET cath_name = '{data}' WHERE cath_name = '{old}';"
         cur.execute(param_sql)
         self.dbconn.conn.commit()

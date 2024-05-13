@@ -14,8 +14,11 @@ TODO:
 1) Реализовать ввод порядкового номера - done
 2) Удалить проверки на "русскоязычный ввод" - done
 3) Устранить SQLi с помощью санации атрибутов - done
-4) UPDATE для отдельных таблиц - indev
+4) UPDATE для категорий - done
 5) Красивый вывод - done
+6) Доделать ограничение на выбор категории - done
+7) Постраничный вывод - indev
+8) UPDATE для блюд - indev
 
 FIXME:
 '''
@@ -79,7 +82,7 @@ class Main:
         menu = texts.show_cath_1txt
         print(menu)
         lst = CathTable().all()
-        
+        self.max_index = (len(lst)+1)
         for i in lst:
             self.cath_arr.append(str(i[0]))
             
@@ -96,10 +99,12 @@ class Main:
         while True:
             if next_step == "4":
                 x = int(input('Введите номер удаляемой категории(0 - для отмены): '))
-                if (x == 0):
-                    return "1"
-                else:
-                    CathTable().delete(self.cath_arr[x-1])
+                while (x==0)or(x<1 or x>self.max_index):
+                    if (x == 0):
+                        return "1"
+                    elif(x<1 or x>self.max_index):
+                        x = int(input('Вы вышли за пределы таблицы, повторите ввод (0 - для отмены):'))
+                CathTable().delete(self.cath_arr[x-1])
                 return "1"
             
             elif next_step == "6": #Добавление блюда в категорию

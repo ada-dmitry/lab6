@@ -88,18 +88,8 @@ class DbTable:
         sql += " ORDER BY "
         sql += ", ".join(self.primary_key())
         cur = self.dbconn.conn.cursor()
-        try:
-            cur.execute(sql)
-            return cur.fetchall() 
-        except psycopg2.errors.UndefinedTable:
-            self.dbconn.conn.rollback()
-            self.db_drop()
-            self.db_init()
-            self.db_insert_somethings()
-        finally:
-            cur.execute(sql)
-            return cur.fetchall()
-       
+        cur.execute(sql)
+        return cur.fetchall()        
         
     def select_one(self, **kwargs):
         conditions = []
