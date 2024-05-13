@@ -64,6 +64,14 @@ class DishTable(DbTable):
         cur.close()
         return str(result)
     
+    def id_by_name(self, name):
+        sql = f"""SELECT id FROM dish WHERE dish_name = '{name}'"""
+        cur = self.dbconn.conn.cursor()
+        cur.execute(sql)
+        result = cur.fetchone()
+        cur.close()
+        return str(result)
+    
     def insert_dishone(self, cath_id):
         
         ins_name = input('Введите название добавляемого блюда (1 - для отмены): ')
@@ -89,11 +97,12 @@ class DishTable(DbTable):
         
         ins_time = input(f'Процесс добавления блюда: {ins_name}\
             \nВведите время приготовления в формате 10 minutes/1 hour 5 minutes (1 - для отмены): ')
-        while(ins_time==0)or(add_func.validate_time_format(ins_time)):
+        while(ins_time==0)or(add_func.validate_time_format(ins_time)==False):
             if ins_time == "0":
                 return "1"
             else:
-                ins_time = input('Введите время приготовления в формате 10 minutes/1 hour 5 minutes (1 - для отмены): ')
+                ins_time = input('Время введено в неверном формате. Повторите попытку.\n\
+Введите время приготовления в формате 10 minutes/1 hour 5 minutes (1 - для отмены): ')
                 
         ins_manual = input(f'Процесс добавления блюда: {ins_name}\
             \nВведите краткую инструкцию приготовления блюда (1 - для отмены): ')
@@ -104,16 +113,16 @@ class DishTable(DbTable):
         
         self.insert_one(insert)
         
-    def update_dish(self, dish_id):
-        print('После изменения выберите другой пункт для изменения или введите -1 для выхода')
-        x = int(input('Что вы хотите изменить в рецепте?\n\
-            1 - Название\n2 - Время приготовления\n3 - Инструкция\n=> '))
+    def update_dish(self, dish):
+        print('После изменения выберите другой пункт для изменения или введите 0 для выхода')
+        x = -10000
+        obj_id = self.id_by_name(dish)[1]
         while(x!=-1):
-            if(x!=1 or x!=2 or x!=3):
-                x = int(input('Введите корректное число из списка (-1 - для выхода)\n\
-                    1 - Название\n2 - Время приготовления\n3 - Инструкция\n=> '))
-            elif(x==1):
-                new_name = input(f"Текущее название {self.name_by_id(dish_id)}")
+            x = add_func.validate_input('Что вы хотите изменить в рецепте?\n\
+1 - Название\n2 - Время приготовления\n3 - Инструкция\n0 - для отмены\n=> ', 0, 3)
+            
+            if(x==1):
+                new_name = input(f"Текущее название {dish}.\nВведите новое название: ")
                 while (new_name.strip() == '')or(len(new_name.strip()) > 32)\
             or(DishTable().check_by_name(new_name)):
                     if(new_name.strip() == ''):
@@ -123,7 +132,7 @@ class DishTable(DbTable):
                         
                     elif(len(new_name.strip()) > 32):
                         new_name = input("Слишком длинная строка. Повторите ввод!\
-                            Укажите название блюда (0 - отмена): ")
+ Укажите название блюда (0 - отмена): ")
                         if new_name == "0":
                             return "1"
                     else:
@@ -131,22 +140,25 @@ class DishTable(DbTable):
                         new_name = input("Повторите ввод! Укажите название блюда (0 - отмена): ")
                         if new_name == "0":
                             return "1"
-                self.update('dish_name', new_name, dish_id)
+                new_name = "'" + new_name + "'"
+                self.update('dish_name', new_name, obj_id)
                     
             elif(x==2):
                 new_time = input(f'Введите время приготовления в формате 10 minutes/1 hour 5 minutes (1 - для отмены): ')
-                while(new_time==0)or(add_func.validate_time_format(new_time)):
+                while(new_time==0)or(add_func.validate_time_format(new_time)==False):
                     if new_time == "0":
                         return "1"
                     else:
                         new_time = input('Введите время приготовления в формате 10 minutes/1 hour 5 minutes (1 - для отмены): ')
-                self.update('cook_time', new_time, dish_id)
+                new_time = "'" + new_time + "'"
+                self.update('cook_time', new_time, obj_id)
                 
             elif(x==3):
                 new_manual = input(f'Введите краткую инструкцию приготовления блюда (1 - для отмены): ')
                 if new_manual == "0":
                     return "1"
-                self.update('manual', new_manual, dish_id)
+                new_manual = "'" + new_manual + "'"
+                self.update('manual', new_manual, obj_id)
         
         
         

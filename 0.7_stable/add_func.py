@@ -44,3 +44,10 @@ def validate_input(prompt, min_value, max_value):
                 print(f"Введенное значение должно быть в диапазоне от {min_value} до {max_value}")
         except ValueError:
             print("Введенное значение должно быть числом.")
+
+
+test1 = 'erhwogngonwro'
+test2 = '1 minute'
+test3 = '2 hours 3 minutes'
+
+print(validate_time_format(test1), validate_time_format(test2), validate_time_format(test3))

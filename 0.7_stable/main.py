@@ -17,8 +17,8 @@ TODO:
 4) UPDATE для категорий - done
 5) Красивый вывод - done
 6) Доделать ограничение на выбор категории - done
-7) Постраничный вывод - indev
-8) UPDATE для блюд - indev
+7) UPDATE для блюд - done
+8) Постраничный вывод - indev
 
 FIXME:
 '''
@@ -82,7 +82,7 @@ class Main:
         menu = texts.show_cath_1txt
         print(menu)
         lst = CathTable().all()
-        self.max_cath_index = (len(lst)+1)
+        self.max_cath_index = (len(lst))
         for i in lst:
             self.cath_arr.append(str(i[0]))
             
@@ -99,7 +99,7 @@ class Main:
         while True:
             if next_step == "4": # Удаление категории
                 x = add_func.validate_input('Введите номер удаляемой категории (0 - для отмены): ', 0, self.max_cath_index)
-                if(x!=0):
+                if(x!=-1):
                     CathTable().delete(self.cath_arr[int(x)-1])
                 return "1"
             
@@ -109,7 +109,7 @@ class Main:
                 
             elif next_step == "7":#Удаление блюда из категории
                 x = add_func.validate_input('Введите номер удаляемого блюда (0 - для отмены): ', 0, self.max_index)
-                if(x!=0):
+                if(x!=-1):
                     DishTable().delete(self.dish_arr[int(x)-1][0])
                 else:
                     return "1"     
@@ -120,13 +120,12 @@ class Main:
                 
             elif next_step == "8": # Обновление названия категории
                 x = add_func.validate_input('Введите номер обновляемой категории (0 - для отмены): ', 0, self.max_cath_index)
-                if(x!=0):
+                if(x!=-1):
                     CathTable().cath_update(self.cath_arr[int(x)-1])
                 return "1"
-            
-            elif next_step == "u":
+            elif next_step == "88":
                 x = add_func.validate_input('Введите номер изменяемого блюда (0 - для отмены): ', 0, self.max_index)
-                if(x!=0):
+                if(x!=-1):
                     DishTable().update_dish(self.dish_arr[int(x)-1][0])
                 else:
                     return "1" 
@@ -165,7 +164,7 @@ class Main:
         if self.cath_id == -1:
             while True:
                 x = add_func.validate_input('Выберите номер интересуемой категории (0 - отмена): ', 0, self.max_cath_index)
-                if(x!=0):
+                if(x!=-1):
                     self.cath_id = CathTable().find_by_name(self.cath_arr[x-1])
                     self.cath_obj = self.cath_arr[x-1]
                 else:
