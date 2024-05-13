@@ -1,6 +1,7 @@
 # Таблица с блюдами и действия с ними
 
 from dbtable import *
+import add_func
 
 class DishTable(DbTable):
     def table_name(self):
@@ -55,6 +56,14 @@ class DishTable(DbTable):
         else:
             return False
     
+    def name_by_id(self, id):
+        sql = f'SELECT dish_name FROM dish WHERE id = {id}'
+        cur = self.dbconn.conn.cursor()
+        cur.execute(sql)
+        result = cur.fetchone()
+        cur.close()
+        return str(result)
+    
     def insert_dishone(self, cath_id):
         
         ins_name = input('Введите название добавляемого блюда (1 - для отмены): ')
@@ -80,16 +89,66 @@ class DishTable(DbTable):
         
         ins_time = input(f'Процесс добавления блюда: {ins_name}\
             \nВведите время приготовления в формате 10 minutes/1 hour 5 minutes (1 - для отмены): ')
-        if ins_time == "0":
-            return "1"
+        while(ins_time==0)or(add_func.validate_time_format(ins_time)):
+            if ins_time == "0":
+                return "1"
+            else:
+                ins_time = input('Введите время приготовления в формате 10 minutes/1 hour 5 minutes (1 - для отмены): ')
+                
         ins_manual = input(f'Процесс добавления блюда: {ins_name}\
             \nВведите краткую инструкцию приготовления блюда (1 - для отмены): ')
-        if ins_time == "0":
+        if ins_manual == "0":
             return "1"
         
         insert = [cath_id, ins_time, ins_name, ins_manual]
         
         self.insert_one(insert)
+        
+    def update_dish(self, dish_id):
+        print('После изменения выберите другой пункт для изменения или введите -1 для выхода')
+        x = int(input('Что вы хотите изменить в рецепте?\n\
+            1 - Название\n2 - Время приготовления\n3 - Инструкция\n=> '))
+        while(x!=-1):
+            if(x!=1 or x!=2 or x!=3):
+                x = int(input('Введите корректное число из списка (-1 - для выхода)\n\
+                    1 - Название\n2 - Время приготовления\n3 - Инструкция\n=> '))
+            elif(x==1):
+                new_name = input(f"Текущее название {self.name_by_id(dish_id)}")
+                while (new_name.strip() == '')or(len(new_name.strip()) > 32)\
+            or(DishTable().check_by_name(new_name)):
+                    if(new_name.strip() == ''):
+                        new_name = input("Пустая строка. Повторите ввод! Укажите название блюда (0 - отмена): ")
+                        if new_name == "0":
+                            return "1"
+                        
+                    elif(len(new_name.strip()) > 32):
+                        new_name = input("Слишком длинная строка. Повторите ввод!\
+                            Укажите название блюда (0 - отмена): ")
+                        if new_name == "0":
+                            return "1"
+                    else:
+                        print('Такое блюдо уже существует')
+                        new_name = input("Повторите ввод! Укажите название блюда (0 - отмена): ")
+                        if new_name == "0":
+                            return "1"
+                self.update('dish_name', new_name, dish_id)
+                    
+            elif(x==2):
+                new_time = input(f'Введите время приготовления в формате 10 minutes/1 hour 5 minutes (1 - для отмены): ')
+                while(new_time==0)or(add_func.validate_time_format(new_time)):
+                    if new_time == "0":
+                        return "1"
+                    else:
+                        new_time = input('Введите время приготовления в формате 10 minutes/1 hour 5 minutes (1 - для отмены): ')
+                self.update('cook_time', new_time, dish_id)
+                
+            elif(x==3):
+                new_manual = input(f'Введите краткую инструкцию приготовления блюда (1 - для отмены): ')
+                if new_manual == "0":
+                    return "1"
+                self.update('manual', new_manual, dish_id)
+        
+        
         
         
     def example_insert(self):       

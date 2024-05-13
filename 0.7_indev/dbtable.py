@@ -67,6 +67,13 @@ class DbTable:
             self.dbconn.conn.rollback()
         return
 
+    def update(self, column, values, wh):
+        sql = f"UPDATE {self.table_name()} SET {column} = {values} WHERE id = {wh};"
+        cur = self.dbconn.conn.cursor()
+        cur.execute(sql)
+        self.dbconn.conn.commit()
+        return
+
     def first(self):
         sql = "SELECT * FROM " + self.table_name()
         sql += " ORDER BY "

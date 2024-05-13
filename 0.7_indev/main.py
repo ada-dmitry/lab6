@@ -82,7 +82,7 @@ class Main:
         menu = texts.show_cath_1txt
         print(menu)
         lst = CathTable().all()
-        self.max_index = (len(lst)+1)
+        self.max_cath_index = (len(lst)+1)
         for i in lst:
             self.cath_arr.append(str(i[0]))
             
@@ -97,14 +97,10 @@ class Main:
         """Выбор действий после вывода категорий
         """        
         while True:
-            if next_step == "4":
-                x = int(input('Введите номер удаляемой категории(0 - для отмены): '))
-                while (x==0)or(x<1 or x>self.max_index):
-                    if (x == 0):
-                        return "1"
-                    elif(x<1 or x>self.max_index):
-                        x = int(input('Вы вышли за пределы таблицы, повторите ввод (0 - для отмены):'))
-                CathTable().delete(self.cath_arr[x-1])
+            if next_step == "4": # Удаление категории
+                x = add_func.validate_input('Введите номер удаляемой категории (0 - для отмены): ', 0, self.max_cath_index)
+                if(x!=0):
+                    CathTable().delete(self.cath_arr[int(x)-1])
                 return "1"
             
             elif next_step == "6": #Добавление блюда в категорию
@@ -112,24 +108,30 @@ class Main:
                 next_step = "5"
                 
             elif next_step == "7":#Удаление блюда из категории
-                x = int(input('Введите номер удаляемого блюда (0 - для отмены): '))
-                if(x==0):
-                    pass
+                x = add_func.validate_input('Введите номер удаляемого блюда (0 - для отмены): ', 0, self.max_index)
+                if(x!=0):
+                    DishTable().delete(self.dish_arr[int(x)-1][0])
                 else:
-                    DishTable().delete(self.dish_arr[x-1][0])
+                    return "1"     
                 next_step = "5"
                 
             elif next_step == "5":
                 next_step = self.show_dish_in_cath()
                 
-            elif next_step == "8": 
-                x = int(input('Выберите номер категории для изменения (0 - для отмены): '))  
-                if(x==0):
-                    pass
-                else:
-                    CathTable().cath_update(self.cath_arr[x-1])
+            elif next_step == "8": # Обновление названия категории
+                x = add_func.validate_input('Введите номер обновляемой категории (0 - для отмены): ', 0, self.max_cath_index)
+                if(x!=0):
+                    CathTable().cath_update(self.cath_arr[int(x)-1])
                 return "1"
-                
+            
+            elif next_step == "u":
+                x = add_func.validate_input('Введите номер изменяемого блюда (0 - для отмены): ', 0, self.max_index)
+                if(x!=0):
+                    DishTable().update_dish(self.dish_arr[int(x)-1][0])
+                else:
+                    return "1" 
+                        
+                    
             elif next_step != "0" and next_step != "9" and next_step != "3":
                 print("Выбрано неверное число! Повторите ввод!")
                 return "1"
@@ -162,13 +164,13 @@ class Main:
         self.dish_arr = []
         if self.cath_id == -1:
             while True:
-                x = int(input('Выберите номер интересуемой категории (0 - отмена): '))
-                if(x==0):
-                    return
-                else:
+                x = add_func.validate_input('Выберите номер интересуемой категории (0 - отмена): ', 0, self.max_cath_index)
+                if(x!=0):
                     self.cath_id = CathTable().find_by_name(self.cath_arr[x-1])
                     self.cath_obj = self.cath_arr[x-1]
-                
+                else:
+                    return "1" 
+                        
                 print("Выбрана категория: " + self.cath_obj)
                 print("Блюда:")
 

@@ -26,8 +26,8 @@ class CathTable(DbTable):
         # sql_sel = "SELECT id FROM " + self.table_name()
         # sql_sel += " WHERE cath_name = " + "'" + name + "'" + ";"
         cur.execute(param_query, (name,))           
-        ret = cur.fetchone()
-        return  list(ret)[0] 
+        ret = list(cur.fetchone())[0]
+        return ret 
     
     def cath_update(self, old):
         """Функция для обновления категории
