@@ -21,19 +21,51 @@ class CathTable(DbTable):
         self.dbconn.conn.commit()
     
     def find_by_name(self, name):
-        cur = self.dbconn.conn.cursor()
+        
         param_query = "SELECT id FROM cath WHERE cath_name = %s;"
         # sql_sel = "SELECT id FROM " + self.table_name()
         # sql_sel += " WHERE cath_name = " + "'" + name + "'" + ";"
         cur.execute(param_query, (name,))           
         ret = cur.fetchone()
         return  list(ret)[0] 
-        # sql = "SELECT * FROM " + self.table_name()
-        # sql += " ORDER BY "
-        # sql += ", ".join(self.primary_key())
-        # sql += " LIMIT 1 OFFSET %(offset)s"
-        # cur.execute(sql, {"offset": num - 1})
-        # print(cur)    
+    
+    def cath_update(self, old):
+        """Функция для обновления категории
+        """      
+        print(old)
+        cur = self.dbconn.conn.cursor()
+
+        data = input("Введите название (1 - отмена): ").strip()
+        if data == "1":
+            return
+        while((len(data.strip()) == 0)or(len(data.strip()) > 32)or(self.check_by_name(data.strip()))):
+            if (len(data.strip()) > 32):
+                data = input("Название слишком длинное! Введите название заново (1 - отмена):").strip()
+                if data == "1":
+                    return
+            elif len(data.strip()) == 0:
+                data = input("Название не может быть пустым! Введите название заново (1 - отмена):").strip()
+                if data == "1":
+                    return
+            else:
+                data = input("Такое название уже существует. Введите новое (1 - отмена):").strip()
+
+        print(data)
+        param_sql = f"UPDATE cath SET cath_name = '{data}' WHERE cath_name = '{old}';"
+        cur.execute(param_sql)
+        self.dbconn.conn.commit()
+        
+    def check_by_name(self, value):
+        sql = f"SELECT * FROM {self.table_name()} WHERE cath_name='{value}'" 
+        cur = self.dbconn.conn.cursor()
+        cur.execute(sql)
+        result = cur.fetchone()
+        cur.close()
+        if result:
+            return True
+        else:
+            return False
+    
     
     def example_insert(self):
         self.insert_one(["Завтрак"])

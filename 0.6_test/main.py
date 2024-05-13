@@ -117,12 +117,12 @@ class Main:
             elif next_step == "5":
                 next_step = self.show_dish_in_cath()
                 
-            elif next_step == "8":             
-                x = int(input(texts.text_choice_update))
-                if(x==1):
-                    self.cath_update()
-                elif(x==2):
-                    self.dish_update() 
+            elif next_step == "8": 
+                x = int(input('Выберите номер категории для изменения (0 - для отмены): '))  
+                if(x==0):
+                    pass
+                else:
+                    CathTable().cath_update(self.cath_arr[x-1])
                 return "1"
                 
             elif next_step != "0" and next_step != "9" and next_step != "3":
@@ -150,12 +150,6 @@ class Main:
                     return
         CathTable().insert_one(data)
         return
-    
-    def update_cath(self):
-        """Функция для обновления категории
-        """        
-        
-        
         
     def show_dish_in_cath(self):
         """Вывод всех блюд в выбранной пользователем категории
@@ -182,17 +176,11 @@ class Main:
                 print("№" + " "*(self.max_index + 1)+ "Название" + " "*(self.max_len_name - 4)\
                     +"Время приготовления     Краткая инструкция\
                         \n-------------------------------------------------------------------------------------------")
-                # print('Катя хорошая и Дима тоже')
                 for i in range(len(self.dish_arr)):
                     txt = str(i+1) + " "*(2+self.max_index-len(str(i)))
                     txt += self.dish_arr[i][0] + " "*(4+self.max_len_name - len(self.dish_arr[i][0]))
                     txt += self.dish_arr[i][1] + " "*(5+19-len(self.dish_arr[i][1]))
                     txt += self.dish_arr[i][2]
-                    # txt += self.dish_arr[i][0] + 
-                    # print(f"""{str(i+1):<8}{self.dish_arr[i][0]:<18}\
-                    #     {self.dish_arr[i][1]:<15}{self.dish_arr[i][2]}""")
-#                     print(f"""{str(i+1)}{" "*(self.max_index+2)}\
-# {self.dish_arr[i][0]}{" "*(self.max_len_name+2)}{self.dish_arr[i][1]}{" "*19}{self.dish_arr[i][2]}""")
                     print(txt)
                 menu = texts.show_dish_in_cath_txt
                 print(menu)
