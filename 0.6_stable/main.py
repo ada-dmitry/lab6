@@ -178,11 +178,11 @@ class Main:
                 for i in lst:
                     self.dish_arr.append([i[2], str(i[1]), str(i[4])])
                     self.max_len_name = max(self.max_len_name, len(i[2]))
-                print("№" + " "*(self.max_index + 1)+ "Название" + " "*(self.max_len_name - 4)\
+                print("№" + " "*(len(str(self.max_index)) + 1)+ "Название" + " "*(self.max_len_name - 4)\
                     +"Время приготовления     Краткая инструкция\
                         \n-------------------------------------------------------------------------------------------")
                 for i in range(len(self.dish_arr)):
-                    txt = str(i+1) + " "*(2+self.max_index-len(str(i)))
+                    txt = str(len(str(self.max_index))+1) + " "*(2+self.max_index-len(str(i)))
                     txt += self.dish_arr[i][0] + " "*(4+self.max_len_name - len(self.dish_arr[i][0]))
                     txt += self.dish_arr[i][1] + " "*(5+19-len(self.dish_arr[i][1]))
                     txt += self.dish_arr[i][2]

@@ -97,6 +97,24 @@ class DbTable:
         cur = self.dbconn.conn.cursor()
         cur.execute(sql)
         return cur.fetchall()        
+    
+    def get_page(self, page_num):
+        """Функция для получения "страницы" из БД по её номеру.
+        В программе заменяет .all() для вывода информации.
+
+        Args:
+            page_num (int): номер страницы, определяется пользователем.
+        
+        Returns: 
+            lst (list): Список, содержащий в себе все строки для этой страницы. 
+        """        
+        ROW_PER_PAGE = 10
+        cur = self.dbconn.conn.cursor()
+        offset = (page_num - 1) * ROW_PER_PAGE
+        sql = (f"SELECT * FROM {self.table_name()} LIMIT {ROW_PER_PAGE} OFFSET {offset}")
+        cur.execute(sql)
+        return cur.fetchall()
+
         
     def select_one(self, **kwargs):
         conditions = []
