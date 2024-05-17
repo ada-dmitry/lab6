@@ -1,6 +1,9 @@
 # Таблица с категориями и действия с ними
 
 from dbtable import *
+import math
+
+ROW_PER_PAGE = 10
 
 class CathTable(DbTable):
     def table_name(self):
@@ -13,11 +16,10 @@ class CathTable(DbTable):
     def table_constraints(self):
         return ['CONSTRAINT "Name" UNIQUE (cath_name)']
     
-    def delete(self, val):
-        param_sql = "DELETE FROM cath WHERE cath_name = %s;"
+    def delete(self, id):
+        param_sql = f"DELETE FROM cath WHERE id = {id};"
         cur = self.dbconn.conn.cursor()
-        value = "".join(val)
-        cur.execute(param_sql, (value,))
+        cur.execute(param_sql)
         self.dbconn.conn.commit()
     
     def find_by_name(self, name):
@@ -64,6 +66,36 @@ class CathTable(DbTable):
             return True
         else:
             return False
+        
+    def get_cath_page(self, page_num):
+        """Функция для получения "страницы" из БД по её номеру.
+        В программе заменяет .all() для вывода информации.
+
+        Args:
+            page_num (int): номер страницы, определяется пользователем.
+        
+        Returns: 
+            lst (list): Список, содержащий в себе все строки для этой страницы. 
+        """        
+        final_list = []
+        cur = self.dbconn.conn.cursor()
+        offset = (page_num - 1) * ROW_PER_PAGE
+        sql = (f"SELECT * FROM cath LIMIT {ROW_PER_PAGE} OFFSET {offset}")
+        cur.execute(sql)
+        zero_list = cur.fetchall()
+        for i in range(len(zero_list)):
+            final_list.append([str(i+1+(ROW_PER_PAGE*(page_num-1))), str(zero_list[i][0]), zero_list[i][1]])
+        return final_list
+    
+    def get_cath_from_page(self, row_num):
+        arr = self.get_cath_page(math.ceil(row_num/ROW_PER_PAGE))
+        row = dict()
+        for i in arr:
+            if(int(i[0]) == row_num):
+                row["id"] = str(i[2])
+                row["cath_name"] = str(i[1])
+        return row 
+    # def change_pages(self, )
     
     
     def example_insert(self):

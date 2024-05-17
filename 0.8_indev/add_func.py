@@ -71,6 +71,6 @@ def add_zero_before(old_index: str, max_len: str) -> str:
         
     
 def cls():
-    # Закомментировать строку нижу, если нужно выключить очистку терминала
-    os.system('cls')
+    # Закомментировать строку ниже, если нужно выключить очистку терминала
+    # os.system('cls')
     return

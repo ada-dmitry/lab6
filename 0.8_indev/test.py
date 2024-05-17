@@ -1,10 +1,8 @@
+a = dict()
 
-
-import os
-
-
-print('До очистки')
-# Для Windows
-os.system('cls')
-
-print('после очистки')
+for i in range(1, 41, 2):
+    for j in range(2, 41, 2):
+        a[f"{i}"] = f"{j}"
+        
+print(a)
+    
