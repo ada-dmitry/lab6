@@ -37,20 +37,14 @@ class CathTable(DbTable):
         print(f'''Выбрана категория для изменения: {old}''')
         cur = self.dbconn.conn.cursor()
 
-        data = input("Введите название (1 - отмена): ").strip()
-        if data == "1":
-            return
+        data = input("Введите название (enter - отмена): ").strip()
         while((len(data.strip()) == 0)or(len(data.strip()) > 32)or(self.check_by_name(data.strip()))):
             if (len(data.strip()) > 32):
-                data = input("Название слишком длинное! Введите название заново (1 - отмена):").strip()
-                if data == "1":
-                    return
-            elif len(data.strip()) == 0:
-                data = input("Название не может быть пустым! Введите название заново (1 - отмена):").strip()
-                if data == "1":
-                    return
+                data = input("Название слишком длинное! Введите название заново (enter - отмена):").strip()
+            elif(self.check_by_name(data.strip()) == 1):
+                data = input("Такое название уже существует. Введите новое (enter - отмена):").strip()
             else:
-                data = input("Такое название уже существует. Введите новое (1 - отмена):").strip()
+                return "1"
 
         param_sql = f"UPDATE cath SET cath_name = '{data}' WHERE cath_name = '{old}';"
         cur.execute(param_sql)
@@ -80,7 +74,7 @@ class CathTable(DbTable):
         final_list = []
         cur = self.dbconn.conn.cursor()
         offset = (page_num - 1) * ROW_PER_PAGE
-        sql = (f"SELECT * FROM cath LIMIT {ROW_PER_PAGE} OFFSET {offset}")
+        sql = (f"SELECT * FROM {self.table_name()} LIMIT {ROW_PER_PAGE} OFFSET {offset}")
         cur.execute(sql)
         zero_list = cur.fetchall()
         for i in range(len(zero_list)):

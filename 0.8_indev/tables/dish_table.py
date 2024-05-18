@@ -2,6 +2,9 @@
 
 from dbtable import *
 import add_func
+import math
+
+ROW_PER_PAGE = 10
 
 class DishTable(DbTable):
     def table_name(self):
@@ -16,8 +19,6 @@ class DishTable(DbTable):
 
     def table_constraints(self):
         return ['CONSTRAINT "Name Dish" UNIQUE (dish_name)']
-
-
 
     def find_by_position(self, num):
         sql = "SELECT * FROM " + self.table_name()
@@ -37,22 +38,67 @@ class DishTable(DbTable):
         cur.execute(sql)
         return cur.fetchall()  
     
-    def get_page_dish(self, cath_id, page_num):
-        row_per_page = 10
-        offset = (page_num - 1) * row_per_page
-        sql = f"""SELECT * FROM dish WHERE cath_id = {str(cath_id)}\
- ORDER BY {", ".join(self.primary_key())} LIMIT {row_per_page} OFFSET {offset}"""
-        cur = self.dbconn.conn.cursor()
-        cur.execute(sql)
-        return cur.fetchall()  
-
-    def delete(self, val):
-        sql = "DELETE FROM dish"
-        sql += " WHERE dish_name"
-        sql += "=" + "'" + val + "';"
+#     def get_page_dish(self, cath_id, page_num):
+#         offset = (page_num - 1) * ROW_PER_PAGE
+#         sql = f"""SELECT * FROM dish WHERE cath_id = {str(cath_id)}\
+#  ORDER BY {", ".join(self.primary_key())} LIMIT {ROW_PER_PAGE} OFFSET {offset}"""
+#         cur = self.dbconn.conn.cursor()
+#         cur.execute(sql)
+#         return cur.fetchall()  
+        
+    def delete(self, id):
+        sql = f"""DELETE FROM {self.table_name()} WHERE id = {id};"""
         cur = self.dbconn.conn.cursor()
         cur.execute(sql)
         self.dbconn.conn.commit()
+    
+    def count(self, id):
+        sql = f"""SELECT COUNT(*) FROM {self.table_name()} WHERE cath_id = {id};"""
+        cur = self.dbconn.conn.cursor()
+        cur.execute(sql)
+        return int(cur.fetchone()[0])
+        
+    def get_dish_from_page(self, row_num):
+        arr = self.get_dish_page(math.ceil(row_num/ROW_PER_PAGE), self.cath)
+        row = dict()
+        for i in arr:
+            if(int(i[0]) == row_num):
+                row["id"] = i[1]
+                row["dish_name"] = str(i[2])
+                row["cath_id"] = i[3]
+                row["cook_time"] = str(i[4])
+                row["manual"] = str(i[5])
+        return row 
+        
+    def get_dish_page(self, cath_id, page_num):
+        """Функция для получения "страницы" из БД по её номеру.
+        В программе заменяет .all() для вывода информации.
+
+        Args:
+            page_num (int): номер страницы, определяется пользователем.
+            cath_id (int): id категории, из которой необходимо получить блюда
+                    
+        Returns: 
+            lst (list): Список, содержащий в себе все строки для этой страницы.
+             
+            0 - number
+            1 - id
+            2 - name
+            3 - cath_id
+            4 - cook_time
+            5 - manual
+        """        
+        final_list = []
+        cur = self.dbconn.conn.cursor()
+        offset = (page_num - 1) * ROW_PER_PAGE
+        sql = (f"SELECT * FROM {self.table_name()} WHERE cath_id = {cath_id} LIMIT {ROW_PER_PAGE} OFFSET {offset}")
+        cur.execute(sql)
+        zero_list = cur.fetchall()
+        for i in range(len(zero_list)):
+            final_list.append([str(i+1+(ROW_PER_PAGE*(page_num-1))), zero_list[i][3],\
+                str(zero_list[i][2]), zero_list[i][0], str(zero_list[i][1]), str(zero_list[i][4])])
+        return final_list
+    
         
     def check_by_name(self, value):
         sql = f"SELECT * FROM {self.table_name()} WHERE dish_name='{value}'" 
@@ -83,99 +129,84 @@ class DishTable(DbTable):
     
     def insert_dishone(self, cath_id):
         
-        ins_name = input('Введите название добавляемого блюда (1 - для отмены): ')
+        ins_name = input('Введите название добавляемого блюда (1 - для отмены): ').strip()
         
-        while (ins_name.strip() == '')or(len(ins_name.strip()) > 32)\
+        while (ins_name == '')or(len(ins_name) > 32)\
             or(DishTable().check_by_name(ins_name)):
                 
-            if(ins_name.strip() == ''):
-                ins_name = input("\nПустая строка. Повторите ввод! Укажите название удаляемого блюда (0 - отмена): ")
-                if ins_name == "0":
-                    return "1"
-                
-            elif(len(ins_name.strip()) > 32):
+            if(len(ins_name) > 32):
                 ins_name = input("\nСлишком длинная строка. Повторите ввод!\
-                    Укажите название удаляемого блюда (0 - отмена): ")
-                if ins_name == "0":
+                    Укажите название добавляемого блюда (enter - отмена): ").strip()
+                if ins_name == "":
                     return "1"
             else:
                 print('\nТакое блюдо уже существует')
-                ins_name = input("Повторите ввод! Укажите название блюда (0 - отмена): ")
-                if ins_name == "0":
+                ins_name = input("Повторите ввод! Укажите название блюда (enter - отмена): ").strip()
+                if ins_name == "":
                     return "1"
         
         ins_time = input(f'\nПроцесс добавления блюда: {ins_name}\
-            \nВведите время приготовления в формате 10 minutes/1 hour 5 minutes (1 - для отмены): ')
-        while(ins_time==0)or(add_func.validate_time_format(ins_time)==False):
-            if ins_time == "0":
-                return "1"
-            else:
-                ins_time = input('Время введено в неверном формате. Повторите попытку.\n\
-Введите время приготовления в формате 10 minutes/1 hour 5 minutes (1 - для отмены): ')
-                
-        ins_manual = input(f'\nПроцесс добавления блюда: {ins_name}\
-            \nВведите краткую инструкцию приготовления блюда (1 - для отмены): ')
-        if ins_manual == "0":
+            \nВведите время приготовления в формате 10 minutes/1 hour 5 minutes (enter - для отмены): ').strip()
+        if(ins_time==''): 
             return "1"
-        
+        while(add_func.validate_time_format(ins_time)==False):
+            ins_time = input('Время введено в неверном формате. Повторите попытку.\n\
+Введите время приготовления в формате 10 minutes/1 hour 5 minutes (enter - для отмены): ').strip()
+            if(ins_time==''): 
+                return "1"
+            
+        ins_manual = input(f'\nПроцесс добавления блюда: {ins_name}\
+            \nВведите краткую инструкцию приготовления блюда (enter - для отмены): ').strip()
+        if ins_manual == "":
+            return "1"
         insert = [cath_id, ins_time, ins_name, ins_manual]
-        
         self.insert_one(insert)
         
-    def update_dish(self, dish):
+    def update_dish(self, obj: dict):
         print('После изменения выберите другой пункт для изменения или введите 0 для выхода')
-        n = dish
         x = -10000
-        obj_id = self.id_by_name(dish)[1]
+        dish_id = obj.get("id")
+        dish_name = obj.get("dish_name")
+        tmp = dish_name
         while True:
-            x = add_func.validate_input(f'\nВыбранное блюдо: {n}\nЧто вы хотите изменить в рецепте?\n\
+            x = add_func.validate_input(f'\nВыбранное блюдо: {tmp}\nЧто вы хотите изменить в рецепте?\n\
 1 - Название\n2 - Время приготовления\n3 - Инструкция\n0 - для отмены\n=> ', 0, 3)
             
             if(x==1):
-                new_name = input(f"Текущее название {n}.\nВведите новое название (0 - для отмены): ")
+                new_name = input(f"Текущее название {tmp}.\nВведите новое название (enter - для отмены): ")
                 while (new_name.strip() == '')or(len(new_name.strip()) > 32)\
-            or(DishTable().check_by_name(new_name))or(x=='0'):
-                
-                    if(new_name.strip() == ''):
-                        new_name = input("Пустая строка. Повторите ввод! Укажите название блюда (0 - отмена): ")
-                        if new_name == "0":
-                            break
-                    
-                    elif(DishTable().check_by_name(new_name)):
+            or(DishTable().check_by_name(new_name)):
+                    if(DishTable().check_by_name(new_name)):
                         print('Такое блюдо уже существует')
-                        new_name = input("Повторите ввод! Укажите название блюда (0 - отмена): ")
-                        if new_name == "0":
-                            break
+                        new_name = input("Повторите ввод! Укажите название блюда (enter - отмена): ")
                         
                     elif(len(new_name.strip()) > 32):
                         new_name = input("Слишком длинная строка. Повторите ввод!\
- Укажите название блюда (0 - отмена): ")
-                        if new_name == "0":
-                            break
+ Укажите название блюда (enter - отмена): ")
                     else:
                         break
                     
-                # dish = new_name
-                n = new_name
+                tmp = new_name
                 new_name = "'" + new_name + "'"
-                self.update('dish_name', new_name, obj_id)
+                self.update('dish_name', new_name, dish_id)
                     
             elif(x==2):
-                new_time = input(f'Введите время приготовления в формате 10 minutes/1 hour 5 minutes (0 - для отмены): ')
-                while(new_time==0)or(add_func.validate_time_format(new_time)==False):
-                    if new_time == "0":
+                new_time = input(f'Введите время приготовления в формате 10 minutes/1 hour 5 minutes (enter - для отмены): ')
+                while(new_time=='')or(add_func.validate_time_format(new_time)==False):
+                    if new_time == '':
                         break
                     else:
-                        new_time = input('Введите время приготовления в формате 10 minutes/1 hour 5 minutes (0 - для отмены): ')
+                        new_time = input('Введите время приготовления в формате 10 minutes/1 hour 5 minutes\
+ (enter - для отмены): ')
                 new_time = "'" + new_time + "'"
-                self.update('cook_time', new_time, obj_id)
+                self.update('cook_time', new_time, dish_id)
                 
             elif(x==3):
-                new_manual = input(f'Введите краткую инструкцию приготовления блюда (0 - для отмены): ')
-                if new_manual == "0":
+                new_manual = input(f'Введите краткую инструкцию приготовления блюда (enter - для отмены): ')
+                if new_manual == "":
                     break
                 new_manual = "'" + new_manual + "'"
-                self.update('manual', new_manual, obj_id)
+                self.update('manual', new_manual, dish_id)
             
             elif(x==-1):
                 break
@@ -275,3 +306,4 @@ class DishTable(DbTable):
         self.insert_one([1, "30 minutes", "Яичница с авокадо", "Яичница с добавлением авокадо и других ингредиентов."])
         self.insert_one([1, "55 minutes", "Веганский пад-тай", "Пад-тай с использованием растительных ингредиентов."])
         return
+    
