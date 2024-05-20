@@ -58,8 +58,8 @@ class DishTable(DbTable):
         cur.execute(sql)
         return int(cur.fetchone()[0])
         
-    def get_dish_from_page(self, row_num):
-        arr = self.get_dish_page(math.ceil(row_num/ROW_PER_PAGE), self.cath)
+    def get_dish_from_page(self, cath_id, row_num):
+        arr = self.get_dish_page(cath_id, math.ceil(row_num/ROW_PER_PAGE))
         row = dict()
         for i in arr:
             if(int(i[0]) == row_num):
@@ -98,7 +98,7 @@ class DishTable(DbTable):
             final_list.append([str(i+1+(ROW_PER_PAGE*(page_num-1))), zero_list[i][3],\
                 str(zero_list[i][2]), zero_list[i][0], str(zero_list[i][1]), str(zero_list[i][4])])
         return final_list
-    
+
         
     def check_by_name(self, value):
         sql = f"SELECT * FROM {self.table_name()} WHERE dish_name='{value}'" 
@@ -128,32 +128,18 @@ class DishTable(DbTable):
         return str(result)
     
     def insert_dishone(self, cath_id):
-        
-        ins_name = input('Введите название добавляемого блюда (1 - для отмены): ').strip()
-        
-        while (ins_name == '')or(len(ins_name) > 32)\
-            or(DishTable().check_by_name(ins_name)):
-                
+        while True: 
+            ins_name = input('Введите название добавляемого блюда (enter - для отмены): ').strip() 
             if(len(ins_name) > 32):
-                ins_name = input("\nСлишком длинная строка. Повторите ввод!\
-                    Укажите название добавляемого блюда (enter - отмена): ").strip()
-                if ins_name == "":
-                    return "1"
-            else:
+                print("Слишком длинная строка. Повторите ввод!")
+            elif(DishTable().check_by_name(ins_name)):
                 print('\nТакое блюдо уже существует')
-                ins_name = input("Повторите ввод! Укажите название блюда (enter - отмена): ").strip()
-                if ins_name == "":
-                    return "1"
-        
-        ins_time = input(f'\nПроцесс добавления блюда: {ins_name}\
-            \nВведите время приготовления в формате 10 minutes/1 hour 5 minutes (enter - для отмены): ').strip()
-        if(ins_time==''): 
-            return "1"
-        while(add_func.validate_time_format(ins_time)==False):
-            ins_time = input('Время введено в неверном формате. Повторите попытку.\n\
-Введите время приготовления в формате 10 minutes/1 hour 5 minutes (enter - для отмены): ').strip()
-            if(ins_time==''): 
+            elif(ins_name == ""):
                 return "1"
+            else:
+                break
+        
+        ins_time = add_func.input_time_format(ins_name)
             
         ins_manual = input(f'\nПроцесс добавления блюда: {ins_name}\
             \nВведите краткую инструкцию приготовления блюда (enter - для отмены): ').strip()
@@ -170,7 +156,7 @@ class DishTable(DbTable):
         tmp = dish_name
         while True:
             x = add_func.validate_input(f'\nВыбранное блюдо: {tmp}\nЧто вы хотите изменить в рецепте?\n\
-1 - Название\n2 - Время приготовления\n3 - Инструкция\n0 - для отмены\n=> ', 0, 3)
+1 - Название\n2 - Время приготовления\n3 - Инструкция\n-1 - для отмены\n=> ', 1, 3)
             
             if(x==1):
                 new_name = input(f"Текущее название {tmp}.\nВведите новое название (enter - для отмены): ")
@@ -191,15 +177,11 @@ class DishTable(DbTable):
                 self.update('dish_name', new_name, dish_id)
                     
             elif(x==2):
-                new_time = input(f'Введите время приготовления в формате 10 minutes/1 hour 5 minutes (enter - для отмены): ')
-                while(new_time=='')or(add_func.validate_time_format(new_time)==False):
-                    if new_time == '':
-                        break
-                    else:
-                        new_time = input('Введите время приготовления в формате 10 minutes/1 hour 5 minutes\
- (enter - для отмены): ')
-                new_time = "'" + new_time + "'"
-                self.update('cook_time', new_time, dish_id)
+                new_time = add_func.input_time_format(tmp)
+                if(new_time != -1):
+                    self.update('cook_time', new_time, dish_id)
+                else:
+                    break
                 
             elif(x==3):
                 new_manual = input(f'Введите краткую инструкцию приготовления блюда (enter - для отмены): ')
