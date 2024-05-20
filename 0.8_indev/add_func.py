@@ -2,7 +2,8 @@ import re
 import os
 
 def validate_time_format(input_str):
-    """Функция проверки подходящего формата для ввода времени в interval
+    """
+    Функция проверки подходящего формата для ввода времени в interval
 
     Args:
         input_str (str): входная строка для проверки
@@ -11,14 +12,12 @@ def validate_time_format(input_str):
         bool: Булевое значение, которое характеризует валидность вводимых строк
     """    
     # Регулярное выражение для проверки формата
-    pattern = r'^(\d+\s*hours?\s*)?(\d+\s*minutes?)$'
-    
+    pattern = re.compile(r"""^(-)?(?:(?P<hour>d+):)?(?P<minute>d+):(?P<second>d+(.d+)?)$""")
     # Проверка соответствия регулярному выражению
     match = re.match(pattern, input_str)
     
     if match:
         return True
-    
     # Если формат некорректный, возвращаем False
     return False
 
@@ -72,5 +71,5 @@ def add_zero_before(old_index: str, max_len: str) -> str:
     
 def cls():
     # Закомментировать строку ниже, если нужно выключить очистку терминала
-    # os.system('cls')
+    os.system('cls')
     return

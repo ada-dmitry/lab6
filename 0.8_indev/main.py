@@ -37,6 +37,9 @@ TEST:
 1) Удаление категории + ввод неизвестных символов и отмена
 2) Обновление категории + ввод неизвестных символов и отмена
 3) Добавление категории + ввод неизвестных символов и отмена
+4) Обновление блюда
+5) Добавление блюда
+6) Удаление блюда
 
 '''
 
@@ -223,22 +226,22 @@ class Main:
             lst = DishTable().get_dish_page(self.cath_id, dish_page)
             
             while True:
-                self.dish_arr = []
+                dish_arr = []
                 
                 for i in lst:
-                    self.dish_arr.append([i[2], str(i[1]), str(i[4])])
+                    dish_arr.append([str(i[2]), str(i[4]), str(i[5])])
                     self.max_len_name = max(self.max_len_name, len(i[2]))
                 add_func.cls()
                 print("№" + " "*(len(str(self.max_dish_index)) + 1)+ "Название" + " "*(self.max_len_name - 4)\
                     +"Время приготовления     Краткая инструкция\
                         \n-------------------------------------------------------------------------------------------")
                 
-                for i in range(len(self.dish_arr)):
+                for i in range(len(dish_arr)):
                     txt = add_func.add_zero_before(str((i+1)+(10*(dish_page-1))), \
                         len(str(self.max_dish_index))) + " "*(2+len(str(self.max_dish_index)))
-                    txt += self.dish_arr[i][0] + " "*(4+self.max_len_name - len(self.dish_arr[i][0]))
-                    txt += self.dish_arr[i][1] + " "*(5+19-len(self.dish_arr[i][1]))
-                    txt += self.dish_arr[i][2]
+                    txt += dish_arr[i][0] + " "*(4+self.max_len_name - len(dish_arr[i][0]))
+                    txt += dish_arr[i][1] + " "*(5+19-len(dish_arr[i][1]))
+                    txt += dish_arr[i][2]
                     print(txt)
                 action = input('-------------------------------------------------------------------------------------------\n\
     Для переключения между страницами используйте "<" и ">"\nКол-во записей на странице: 10\n\
