@@ -104,7 +104,7 @@ class Main:
         cath_page = 1
         lst = CathTable().get_cath_page(cath_page)
         action = '>'
-        max_page = math.ceil(self.max_cath_index/10)
+        max_page = math.ceil(self.max_cath_index/10) + ((self.max_cath_index/10)== 0)
         while True:
             cath_arr = CathTable().get_cath_page(cath_page)
             add_func.cls()
@@ -239,7 +239,8 @@ class Main:
             self.max_len_name = 0
             self.max_dish_index = DishTable().count(self.cath_id)
             action = '>'
-            max_page = math.ceil(self.max_dish_index/10)
+            max_page = math.ceil(self.max_dish_index/10) + ((self.max_dish_index/10) == 0)
+            
             lst = DishTable().get_dish_page(self.cath_id, dish_page)
             
             while True:
@@ -273,7 +274,7 @@ class Main:
                     if(dish_page==1):
                         dish_page = max_page
                     else:
-                        dish_page -= 1
+                        dish_page -= 1 
                     lst = DishTable().get_dish_page(self.cath_id, dish_page)
                 else:
                     break
