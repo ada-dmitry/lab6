@@ -1,10 +1,7 @@
 # Базовые действия с таблицами
+import re
 
 from dbconnection import *
-
-'''
-FIXME:
-'''
 
 class DbTable:
     dbconn = None
@@ -25,9 +22,10 @@ class DbTable:
         return ['id']
 
     def column_names_without_id(self):
-        res = sorted(self.columns().keys(), key = lambda x: x)
-        if 'id' in res:
-            res.remove('id')
+        res = list(self.columns().keys())
+        for key in self.primary_key():
+            if key in res:
+                res.remove(key)
         return res
 
     def table_constraints(self):
@@ -35,7 +33,7 @@ class DbTable:
 
     def create(self):
         sql = "CREATE TABLE " + self.table_name() + "("
-        arr = [k + " " + " ".join(v) for k, v in sorted(self.columns().items(), key = lambda x: x[0])]
+        arr = [k + " " + " ".join(v) for k, v in self.columns().items()]
         sql += ", ".join(arr + self.table_constraints())
         sql += ")"
         cur = self.dbconn.conn.cursor()
@@ -50,25 +48,30 @@ class DbTable:
         self.dbconn.conn.commit()
         return
 
+    def delete_one(self, data):
+        if type(data)==int:
+            sql = f"DELETE FROM {self.table_name()} WHERE id = %(id)s"
+            cur = self.dbconn.conn.cursor()
+            cur.execute(sql, {'id': str(data)})
+            self.dbconn.conn.commit()
+        elif type(data)==str:
+            sql = f"DELETE FROM {self.table_name()} WHERE name = %(name)s"
+            cur = self.dbconn.conn.cursor()
+            cur.execute(sql, {'name': str(data)})
+            self.dbconn.conn.commit()
+        return
+
     def insert_one(self, vals):
-        for i in range(len(vals)):
+        for i in range(0, len(vals)):
             if type(vals[i]) == str:
+                vals[i] = re.split(r"'|--|\(|\)", vals[i])[0]
                 vals[i] = "'" + vals[i] + "'"
             else:
                 vals[i] = str(vals[i])
-        values = ", ".join(vals)
-        query = f"""INSERT INTO {self.table_name()}({", ".join(self.column_names_without_id())}) VALUES({values})"""
-        cur = self.dbconn.conn.cursor()
-        # cur.execute(sql)
-        try:
-            cur.execute(query)
-            self.dbconn.conn.commit()
-        except psycopg2.errors.UniqueViolation:
-            self.dbconn.conn.rollback()
-        return
-
-    def update(self, column, values, wh):
-        sql = f"UPDATE {self.table_name()} SET {column} = {values} WHERE id = {wh};"
+        # sql = "INSERT INTO " + self.table_name() + "("
+        # sql += ", ".join(self.column_names_without_id()) + ") VALUES("
+        # sql += ", ".join(vals) + ")"
+        sql = f"""INSERT INTO {self.table_name()} ({", ".join(self.column_names_without_id())}) VALUES ({", ".join(vals)});"""
         cur = self.dbconn.conn.cursor()
         cur.execute(sql)
         self.dbconn.conn.commit()
@@ -97,34 +100,4 @@ class DbTable:
         cur = self.dbconn.conn.cursor()
         cur.execute(sql)
         return cur.fetchall()        
-    
-    def count(self):
-        sql = f"""SELECT COUNT(*) FROM {self.table_name()};"""
-        cur = self.dbconn.conn.cursor()
-        cur.execute(sql)
-        return int(cur.fetchone()[0])
-    
         
-    def select_one(self, **kwargs):
-        conditions = []
-        values = []
-        
-        sorted_kwargs = sorted(kwargs.items(), key=lambda x: x[0])
-        
-        for key, value in sorted_kwargs():
-            conditions.append(f"{key}=%s")
-            values.append(value)
-
-        sql = f"SELECT * FROM {self.table_name()} WHERE " + " AND ".join(conditions)
-        cur = self.dbconn.conn.cursor()
-        cur.execute(sql, tuple(values))
-        result = cur.fetchone()
-        cur.close()
-
-        if result:
-            return True
-        else:
-            return False
-        
-
-

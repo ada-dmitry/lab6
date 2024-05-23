@@ -65,6 +65,7 @@ class DbTable:
             self.dbconn.conn.commit()
         except psycopg2.errors.UniqueViolation:
             self.dbconn.conn.rollback()
+            print('Такая строка уже существует. Повторите попытку')
         return
 
     def update(self, column, values, wh):
@@ -97,13 +98,6 @@ class DbTable:
         cur = self.dbconn.conn.cursor()
         cur.execute(sql)
         return cur.fetchall()        
-    
-    def count(self):
-        sql = f"""SELECT COUNT(*) FROM {self.table_name()};"""
-        cur = self.dbconn.conn.cursor()
-        cur.execute(sql)
-        return int(cur.fetchone()[0])
-    
         
     def select_one(self, **kwargs):
         conditions = []

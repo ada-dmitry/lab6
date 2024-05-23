@@ -1,5 +1,4 @@
 import sys
-import texts
 import math
 
 # import time
@@ -21,14 +20,28 @@ TODO:
 6) Доделать ограничение на выбор категории - done
 7) UPDATE для блюд - done 0.7
 8) Постраничный вывод - indev 0.8 - реализация через offset.
-9) Реализовать отдельный просмотр(offset)
+9) Реализовать отдельный просмотр(offset) - done for cath
 10) И отдельный вывод(offset)
 
+
+1) detele category - done
+2) update category - done
+3) add category - done
 
 FIXME:
 1) Откомментировать os.cls
 2) Исправить вылет при неверном вводе в самое начало(сделать выход на предыдущую менюшку)
 3) При вводе текста пропуск сделать с помощью пустой строки.
+4) Ввод времени
+
+TEST:
+1) Удаление категории + ввод неизвестных символов и отмена
+2) Обновление категории + ввод неизвестных символов и отмена
+3) Добавление категории + ввод неизвестных символов и отмена
+4) Обновление блюда
+5) Добавление блюда
+6) Удаление блюда
+
 '''
 
 
@@ -60,7 +73,11 @@ class Main:
         cth.drop()
         return
     def show_main_menu(self):
-        menu = texts.show_main_menu_txt
+        menu = """Привутствуем в меню, выберите действие:
+        1 - просмотр категорий;
+        2 - сброс и инициализация БД;
+        9 - выход;"""
+
         print(menu)
         return
     def read_next_step(self):
@@ -79,112 +96,119 @@ class Main:
         else:
             return next_step
         
+    def show_page_cath(self):
+
+        menu = """Просмотр списка категорий!
+№\tНазвание\n-------------------------------------------------------------------------------------------"""
+        
+        cath_page = 1
+        lst = CathTable().get_cath_page(cath_page)
+        action = '>'
+        max_page = math.ceil(self.max_cath_index/10) + ((self.max_cath_index/10)== 0)
+        while True:
+            cath_arr = CathTable().get_cath_page(cath_page)
+            add_func.cls()
+
+            print(menu)
+            for i in range(len(cath_arr)):
+                print(add_func.add_zero_before(cath_arr[i][0],\
+                    len(str(self.max_cath_index))) + "\t" + cath_arr[i][1])
+                
+            action = input('-------------------------------------------------------------------------------------------\n\
+Для переключения между страницами используйте "<" и ">"\n\
+Для выхода в меню действий нажмите любую другую клавишу\n=> ')
+            
+            if(action=='>'):
+                if(cath_page==max_page):
+                    cath_page = 1
+                else:
+                    cath_page += 1
+                lst = CathTable().get_cath_page(cath_page)
+            elif(action=='<'):
+                if(cath_page==1):
+                    cath_page = max_page
+                else:
+                    cath_page -= 1
+                lst = CathTable().get_cath_page(cath_page)
+            else:
+                break
+        
+        
             
     def show_cath(self):
         self.cath_id = -1
-        menu = texts.show_cath_1txt
-        print(menu)
-        self.max_cath_index = len(CathTable().all())
-        self.cath_page = 1
-        lst = CathTable().get_page(self.cath_page)
-        action = '>'
-        max_page = math.ceil(self.max_cath_index/10)
-        while True:
-            
-            self.cath_arr = []
-            
-            for i in lst:
-                self.cath_arr.append(str(i[0]))
-            add_func.cls()
-            for i in range(len(self.cath_arr)):
-                print(add_func.add_zero_before(str((i+1)+(10*(self.cath_page-1))), len(str(self.max_cath_index))) + "\t" + self.cath_arr[i])
-            action = input('-------------------------------------------------------------------------------------------\n\
-Для переключения между страницами используйте "<" и ">"\nКол-во записей на странице: 10\n\
-Для выхода в меню действий нажмите любую другую клавишу\n=> ')
-            if(action=='>'):
-                if(self.cath_page==max_page):
-                    self.cath_page = 1
-                else:
-                    self.cath_page += 1
-                lst = CathTable().get_page(self.cath_page)
-            elif(action=='<'):
-                if(self.cath_page==1):
-                    self.cath_page = max_page
-                else:
-                    self.cath_page -= 1
-                lst = CathTable().get_page(self.cath_page)
-            else:
-                break
-                 
-        menu = texts.show_cath_2txt
+        self.max_cath_index = CathTable().count()
+        self.show_page_cath()
+        menu = """-------------------------------------------------------------------------------------------\nДальнейшие операции: 
+    0 - возврат в главное меню;
+    3 - добавление новой категории;
+    4 - удаление категории;
+    5 - просмотр блюд в категории;
+    8 - обновить категорию;
+    9 - выход."""
         print(menu)
         return
     
+
     def after_show_cath(self, next_step):
         """Выбор действий после вывода категорий
-        """        
+        """
         while True:
             if next_step == "4": # Удаление категории
-                if(self.cath_page<(self.max_cath_index//10)):
-                    left = ((self.cath_page-1)*10)+1
-                    right = left+9
-                    print(left)
-
-                else:
-                    left = 1+((self.cath_page-1)*10)
-                    right = self.max_cath_index
-                x = add_func.validate_input('Введите номер удаляемой категории (0 - для отмены): ', left, right)
+                left = 1
+                right = self.max_cath_index
+                x = add_func.validate_input('Введите номер удаляемой категории (-1 - отмена): ', left, right)
                 if(x!=-1):
-                    CathTable().delete(self.cath_arr[(int(x)-1)-((self.cath_page-1)*10)])
+                    CathTable().delete(CathTable().get_cath_from_page(x).get("id"))
                 return "1"
             
             elif next_step == "6": #Добавление блюда в категорию
-                DishTable().insert_dishone(self.cath_id)
-                next_step = "5"
+                if(self.cath_id != -1):    
+                    DishTable().insert_dishone(self.cath_id)
+                    next_step = "5"
+                else:
+                    print("Сначала выберите категорию")
+                    return "1"
                 
             elif next_step == "7":#Удаление блюда из категории
-                if(self.dish_page<(self.max_index//10)):
-                    left = ((self.dish_page-1)*10)+(self.dish_page==1)
-                    right = left+9
-
+                if(self.cath_id != -1):
+                    left = 1
+                    right = self.max_dish_index
+                    x = add_func.validate_input('Введите номер удаляемого блюда (-1 - отмена): ', left, right)
+                    if(x!=-1):
+                        DishTable().delete(DishTable().get_dish_from_page(self.cath_id, x).get("id"))
+                        return "1"
+                    else:
+                        next_step = "5"
+                        return "1"     
                 else:
-                    left = 1+((self.dish_page-1)*10)+(self.dish_page!=1)
-                    right = self.max_index
-                x = add_func.validate_input('Введите номер удаляемого блюда (0 - для отмены): ', left, right)
-                if(x!=-1):
-                    DishTable().delete(self.dish_arr[(int(x)-1)-((self.dish_page-1)*10)][0])
-                else:
-                    return "1"     
-                next_step = "5"
+                    print("Сначала выберите категорию")
+                    return "1"
                 
             elif next_step == "5":
                 next_step = self.show_dish_in_cath()
                 
             elif next_step == "8": # Обновление названия категории
-                if(self.cath_page<(self.max_cath_index//10)):
-                    left = 1+((self.cath_page-1)*10)
-                    right = left+9
-
-                else:
-                    left = 1+((self.cath_page-1)*10)
-                    right = self.max_cath_index
-                x = add_func.validate_input('Введите номер обновляемой категории (0 - для отмены): ', left, right)
+                left = 1
+                right = self.max_cath_index
+                x = add_func.validate_input('Введите номер обновляемой категории (-1 - отмена): ', left, right)
                 if(x!=-1):
-                    CathTable().cath_update(self.cath_arr[(int(x)-1)-((self.cath_page-1)*10)])
+                    CathTable().cath_update(CathTable().get_cath_from_page(x).get("cath_name"))
                 return "1"
-            elif next_step == "88":
-                if(self.dish_page<(self.max_index//10)):
-                    left = 1+((self.dish_page-1)*10)
-                    right = left+9
-
+            
+            elif next_step == "88": # Обновление блюда
+                if(self.cath_id != -1):
+                    left = 1
+                    right = self.max_dish_index
+                    x = add_func.validate_input('Введите номер обновляемого блюда (-1 - отмена): ', left, right)
+                    if(x!=-1):
+                        DishTable().update_dish(DishTable().get_dish_from_page(self.cath_id, x))
+                        return "1"
+                    else:
+                        return "1" 
                 else:
-                    left = 0+((self.dish_page-1)*10)
-                    right = self.max_index
-                x = add_func.validate_input('Введите номер обновляемого блюда (0 - для отмены): ', left, right)
-                if(x!=-1):
-                    DishTable().update_dish(self.dish_arr[(int(x)-1)-((self.cath_page-1)*10)][0])
-                else:
-                    return "1" 
+                    print("Сначала выберите категорию")
+                    return "1"
                         
                     
             elif next_step != "0" and next_step != "9" and next_step != "3":
@@ -197,88 +221,90 @@ class Main:
         """
         Добавление новой категории в таблицу
         """        
-        data = []
-        data.append(input("Введите название (1 - отмена): ").strip())
-        if data[0] == "1":
-            return
-        while((len(data[0].strip()) == 0)or(len(data[0].strip()) > 32)):
-            if (len(data[0].strip()) > 32):
-                data[0] = input("Название слишком длинное! Введите название заново (1 - отмена):").strip()
-                if data[0] == "1":
-                    return
+        data = input("Введите название (enter - отмена): ").strip()
+        while((len(data) == 0)or(len(data) > 32)or(CathTable().check_by_name(data))):
+            if (len(data) > 32):
+                data = input("Название слишком длинное! Введите название заново (enter - отмена): ").strip()
+            elif(CathTable().check_by_name(data)):
+                data = input("Такое название уже существует! Введите название заново (enter - отмена): ").strip()
             else:
-                data[0] = input("Название не может быть пустым! Введите название заново (1 - отмена):").strip()
-                if data[0] == "1":
-                    return
-        CathTable().insert_one(data)
+                return
+        CathTable().insert_one([data])
         return
+    
+    def show_dish_page(self):
+            print("Блюда:")
+            dish_page = 1
+            lst = DishTable().get_dish_page(self.cath_id, dish_page)
+            self.max_len_name = 0
+            self.max_dish_index = DishTable().count(self.cath_id)
+            action = '>'
+            max_page = math.ceil(self.max_dish_index/10) + ((self.max_dish_index/10) == 0)
+            
+            lst = DishTable().get_dish_page(self.cath_id, dish_page)
+            
+            while True:
+                dish_arr = []
+                
+                for i in lst:
+                    dish_arr.append([str(i[2]), str(i[4]), str(i[5])])
+                    self.max_len_name = max(self.max_len_name, len(i[2]))
+                add_func.cls()
+                print("№" + " "*(len(str(self.max_dish_index)) + 1)+ "Название" + " " + " "*(self.max_len_name - 4)\
+                    +"Время приготовления     Краткая инструкция\
+                        \n-------------------------------------------------------------------------------------------")
+                
+                for i in range(len(dish_arr)):
+                    txt = add_func.add_zero_before(str((i+1)+(10*(dish_page-1))), \
+                        len(str(self.max_dish_index))) + " "*(2+len(str(self.max_dish_index)))
+                    txt += dish_arr[i][0] + " "*(4+self.max_len_name - len(dish_arr[i][0]))
+                    txt += dish_arr[i][1] + " "*(5+19-len(dish_arr[i][1]))
+                    txt += dish_arr[i][2]
+                    print(txt)
+                action = input('-------------------------------------------------------------------------------------------\n\
+    Для переключения между страницами используйте "<" и ">"\n\
+    Для выхода в меню действий нажмите любую другую клавишу\n=> ')
+                if(action=='>'):
+                    if(dish_page==max_page):
+                        dish_page = 1
+                    else:
+                        dish_page += 1
+                    lst = DishTable().get_dish_page(self.cath_id, dish_page)
+                elif(action=='<'):
+                    if(dish_page==1):
+                        dish_page = max_page
+                    else:
+                        dish_page -= 1 
+                    lst = DishTable().get_dish_page(self.cath_id, dish_page)
+                else:
+                    break
         
     def show_dish_in_cath(self):
         """Вывод всех блюд в выбранной пользователем категории
         """       
-
         if self.cath_id == -1:
             while True:
-                if(self.cath_page<(self.max_cath_index//10)):
-                    left = 1+((self.cath_page-1)*10)
-                    right = left+9
-
-                else:
-                    left = 1+((self.cath_page-1)*10)+(self.cath_page!=1)
-                    right = self.max_cath_index
-                x = add_func.validate_input('Выберите номер интересуемой категории (0 - отмена): ', left, right)
+                left = 1
+                right = self.max_cath_index
+                x = add_func.validate_input('Выберите номер интересуемой категории (-1 - отмена): ', left, right)
                 add_func.cls()
                 if(x!=-1):
-                    self.cath_id = CathTable().find_by_name(self.cath_arr[(int(x)-1)-((self.cath_page-1)*10)])
-                    self.cath_obj = self.cath_arr[(int(x)-1)-((self.cath_page-1)*10)]
+                    self.cath = CathTable().get_cath_from_page(x)
+                    self.cath_obj = self.cath.get("cath_name")
+                    self.cath_id = self.cath.get("id")
                 else:
                     return "1" 
-                print("Выбрана категория: " + self.cath_obj)
-                print("Блюда:")
-                self.dish_page = 1
-                lst = DishTable().get_page_dish(self.cath_id, self.dish_page)
-                self.max_len_name = 0
-                self.max_index = len(DishTable().all_by_cath_id(self.cath_id))
-                action = '>'
-                max_page = math.ceil(self.max_index/10)
-                lst = DishTable().get_page_dish(self.cath_id, self.dish_page)
+                self.show_dish_page()
+                print(f"Выбрана категория: {self.cath_obj}")
                 
-                while True:
-                    self.dish_arr = []
                     
-                    for i in lst:
-                        self.dish_arr.append([i[2], str(i[1]), str(i[4])])
-                        self.max_len_name = max(self.max_len_name, len(i[2]))
-                    add_func.cls()
-                    print("№" + " "*(len(str(self.max_index)) + 1)+ "Название" + " "*(self.max_len_name - 4)\
-                        +"Время приготовления     Краткая инструкция\
-                            \n-------------------------------------------------------------------------------------------")
-                    
-                    for i in range(len(self.dish_arr)):
-                        txt = add_func.add_zero_before(str((i+1)+(10*(self.dish_page-1))), len(str(self.max_index))) + " "*(2+len(str(self.max_index)))
-                        txt += self.dish_arr[i][0] + " "*(4+self.max_len_name - len(self.dish_arr[i][0]))
-                        txt += self.dish_arr[i][1] + " "*(5+19-len(self.dish_arr[i][1]))
-                        txt += self.dish_arr[i][2]
-                        print(txt)
-                    action = input('-------------------------------------------------------------------------------------------\n\
-        Для переключения между страницами используйте "<" и ">"\nКол-во записей на странице: 10\n\
-        Для выхода в меню действий нажмите любую другую клавишу\n=> ')
-                    if(action=='>'):
-                        if(self.dish_page==max_page):
-                            self.dish_page = 1
-                        else:
-                            self.dish_page += 1
-                        lst = DishTable().get_page_dish(self.cath_id, self.dish_page)
-                    elif(action=='<'):
-                        if(self.dish_page==1):
-                            self.dish_page = max_page
-                        else:
-                            self.dish_page -= 1
-                        lst = DishTable().get_page_dish(self.cath_id, self.dish_page)
-                    else:
-                        break
-                    
-                menu = texts.show_dish_in_cath_txt
+                menu = """-------------------------------------------------------------------------------------------\nДальнейшие операции:
+    0 - возврат в главное меню;
+    1 - возврат в просмотр категорий;
+    6 - добавление нового блюда;
+    7 - удаление блюда;
+    88 - для обновления блюда;
+    9 - выход."""
                 print(menu)
                 return self.read_next_step()
 
